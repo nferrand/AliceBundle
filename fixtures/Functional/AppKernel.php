@@ -43,7 +43,11 @@ class AppKernel extends Kernel
      */
     public function registerContainerConfiguration(LoaderInterface $loader)
     {
-        $loader->load(__DIR__.'/config/config.yml');
+        if ('public' !== $this->getEnvironment()) {
+            $loader->load(__DIR__.'/config/config.yml');
+        } else {
+            $loader->load(__DIR__.'/config/test/config.yml');
+        }
         $loader->load(__DIR__.'/config/doctrine.yml');
     }
 
@@ -62,9 +66,15 @@ class AppKernel extends Kernel
             public function process(ContainerBuilder $container)
             {
                 foreach ($container->getDefinitions() as $id => $definition) {
+                    if ($id === 'slugger') {
+                        continue;
+                    }
                     $definition->setPublic(true);
                 }
                 foreach ($container->getAliases() as $id => $definition) {
+                    if ($id === 'Symfony\Component\String\Slugger\SluggerInterface') {
+                        continue;
+                    }
                     $definition->setPublic(true);
                 }
             }
